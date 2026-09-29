@@ -1,0 +1,20 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+species (H2O2 NO2);
+
+// Fixed in-vitro diffusivity for the decay sensitivity study.
+D_H2O2  [0 2 -1 0 0 0 0] 1.75e-9;
+D_NO2   [0 2 -1 0 0 0 0] 1.75e-9;
+
+// Active (central): k=0.005 1/s, half-life 138.6 s, for both RONS.
+// k_H2O2  [0 0 -1 0 0 0 0] 0.005;
+// k_NO2   [0 0 -1 0 0 0 0] 0.005;
+
+// Slow-decay alternative, k=0.001 1/s (half-life 693.1 s):
+// k_H2O2  [0 0 -1 0 0 0 0] 0.001;
+// k_NO2   [0 0 -1 0 0 0 0] 0.001;
+
+// Fast-decay alternative, k=0.010 1/s (half-life 69.3 s):
+k_H2O2  [0 0 -1 0 0 0 0] 0.025;
+k_NO2   [0 0 -1 0 0 0 0] 0.025;
+
+twoWayCoupling  false;

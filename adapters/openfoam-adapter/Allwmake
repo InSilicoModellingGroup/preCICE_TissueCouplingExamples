@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+########## CONFIGURATION - You may want to change these ########################
+
+# Optional: Preprocessor flags
+# "-DADAPTER_DEBUG_MODE" enables debug messages
+# "-DADAPTER_ENABLE_TIMINGS" enables time measurements
+ADAPTER_PREP_FLAGS="${ADAPTER_PREP_FLAGS:-}"
+
+# Build command and options
+# To compile with multiple threads set ADAPTER_WMAKE_JOBS or WM_NCOMPPROCS
+# e.g., export ADAPTER_WMAKE_JOBS=8
+# Make sure that these options are supported by your OpenFOAM version.
+ADAPTER_WMAKE_JOBS="${ADAPTER_WMAKE_JOBS:-${WM_NCOMPPROCS:-4}}"
+
+adapter_build_command(){
+    local jobs_flag=""
+    if [ "${ADAPTER_WMAKE_JOBS}" -gt 1 ] 2>/dev/null; then
+        jobs_flag="-j ${ADAPTER_WMAKE_JOBS}"
+    fi
+    wmake ${jobs_flag} libso
+}
+
+# Determine target directory for the adapter
+# Build in local Make directory for self-contained coupling
+desired_dir="${ADAPTER_TARGET_DIR:-$(pwd)/Make/${WM_OPTIONS}}"
+ADAPTER_TARGET_DIR="${desired_dir}"
+
+# More information for compatibility with OpenFOAM for compatibility with OpenFOAM
+DOC_COMPATIBILITY="https://precice.org/adapter-openfoam-support.html"
+
+################################################################################
+# Function to print to screen and copy to a logfile
+log() {
+    echo "$@" | tee -a "Allwmake.log"
+}
+# Function to print warnings
+warning() {
+    log "WARNING: $*"
+    export ADAPTER_WARNINGS="true"
+}
+################################################################################
+
+# Information header
+log "Building the OpenFOAM-preCICE adapter..."
+
+# Export environment variables
+export ADAPTER_PREP_FLAGS
+export ADAPTER_TARGET_DIR
+
+# Validate that target directory is set
+if [ -z "${ADAPTER_TARGET_DIR}" ]; then
+    log "ERROR: FOAM_USER_LIBBIN is not set and ADAPTER_TARGET_DIR is empty."
+    log "Please source your OpenFOAM environment or set ADAPTER_TARGET_DIR manually."
+    exit 1
+fi
+
+# Ensure the installation directory exists
+log ""
+log "Ensuring target directory exists: ${ADAPTER_TARGET_DIR}"
+if ! mkdir -p "${ADAPTER_TARGET_DIR}"; then
+    log "ERROR: Could not create target directory ${ADAPTER_TARGET_DIR}."
+    exit 1
+fi
+
+# Check if pkg-config is available and get preCICE flags
+ADAPTER_PKG_CONFIG_CFLAGS=""
+ADAPTER_PKG_CONFIG_LIBS=""
+if command -v pkg-config >/dev/null 2>&1; then
+    if pkg-config libprecice >/dev/null 2>&1; then
+        ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --cflags libprecice)"
+        ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --libs libprecice)"
+        log ""
+        log "preCICE flags from pkg-config:"
+        log "  CFLAGS = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+        log "  LIBS   = ${ADAPTER_PKG_CONFIG_LIBS}"
+    else
+        warning "pkg-config file 'libprecice.pc' not found."
+    fi
+else
+    warning "pkg-config not installed; cannot auto-detect preCICE."
+fi
+export ADAPTER_PKG_CONFIG_CFLAGS
+export ADAPTER_PKG_CONFIG_LIBS
+
+# Check OpenFOAM environment
+log ""
+log "Current OpenFOAM environment:"
+log "  WM_PROJECT         = ${WM_PROJECT:-}"
+log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION:-}"
+log "  WM_NCOMPPROCS      = ${WM_NCOMPPROCS:=1}"
+log "  ADAPTER_WMAKE_JOBS = ${ADAPTER_WMAKE_JOBS}"
+
+if [ -z "${WM_PROJECT:-}" ]; then
+    log ""
+    log "=== ERROR: No OpenFOAM environment detected. ==="
+    log "Source OpenFOAM's bashrc or see ${DOC_COMPATIBILITY}."
+    exit 1
+fi
+if [ "${WM_PROJECT}" = "foam" ]; then
+    log ""
+    log "=== ERROR: foam-extend is not compatible with this adapter. ==="
+    log "See ${DOC_COMPATIBILITY}."
+    exit 1
+fi
+
+# Build message
+log ""
+log "Building into: ${ADAPTER_TARGET_DIR}"
+log "Using flags: ${ADAPTER_PREP_FLAGS}"
+
+# Compile with wmake and capture output
+log ""
+log "Running wmake..."
+if ! adapter_build_command 2>&1 | tee wmake.log || \
+   [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
+    log "=== ERROR: Build failed. Check wmake.log. ==="
+    log "Check compatibility: ${DOC_COMPATIBILITY}"
+    exit 1
+fi
+
+# Check for undefined symbols
+ADAPTER_WMAKE_UNDEF=$(grep -c -E "undefined|not defined" wmake.log || true)
+ldd -r "${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so" > ldd.log 2>&1 || true
+ADAPTER_LDD_UNDEF=$(grep -c -E "undefined|not defined" ldd.log || true)
+if [ "$ADAPTER_WMAKE_UNDEF" -gt 0 ] || [ "$ADAPTER_LDD_UNDEF" -gt 0 ]; then
+    log "=== ERROR: Linking problems detected. ==="
+    log "Review wmake.log and ldd.log for undefined symbols."
+else
+    log "=== OK: Build and linkage successful. ==="
+fi
+
+# Warnings summary
+if [ "${ADAPTER_WARNINGS:-}" = "true" ]; then
+    echo "Build completed with warnings; review Allwmake.log."
+fi

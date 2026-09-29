@@ -1,0 +1,25 @@
+FoamFile { version 2.0; format ascii; class dictionary; location "system"; object preciceDict; }
+preciceConfig "precice-config-tissue_41_diffusion.xml";
+participant FVM;
+modules (FA);
+interfaces {
+  VolumeInterface {
+    // Match o2Cube: FVMmesh contains internal cell centres only.
+    // Boundary geometry is exported by the two dedicated interfaces below.
+    mesh FVMmesh; patches (); cellSets (); locations volumeCenters;
+    readData ( ); writeData ( H2O2 NO2 );
+  };
+  WallSurface {
+    mesh WallSurfaceMesh; patches (top bottom walls); locations faceCenters;
+    readData ( ); writeData ( WallGeometry WallNormals WallAreas );
+  };
+  BoundaryTriangles {
+    mesh BoundaryTriangleMesh; patches (top bottom walls); locations triangleCenters;
+    readData (); writeData (BoundaryTriangleVertex0 BoundaryTriangleVertex1 BoundaryTriangleVertex2 BoundaryKind BoundaryNormals BoundaryVelocity);
+  };
+};
+FA {
+  nameH2O2 H2O2; nameNO2 NO2;
+  enableU false; enableP false; enableT false; enableRho false; enableMu false; enableO2 false;
+  enableH2O2 true; enableNO2 true;
+};

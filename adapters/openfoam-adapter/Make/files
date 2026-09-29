@@ -1,0 +1,20 @@
+Utilities.C
+
+Interface.C
+
+CouplingDataUser.C
+
+FA/ModuleFA.C
+FA/FA.C
+FA/VolumeScalarWriter.C
+FA/ScalarSink.C
+FA/WallSurface.C
+FA/WallNormals.C
+FA/WallAreas.C
+FA/BoundaryTriangles.C
+
+Adapter.C
+
+preciceAdapterFunctionObject.C
+
+LIB = $(PWD)/Make/$(WM_OPTIONS)/libpreciceAdapterFunctionObject

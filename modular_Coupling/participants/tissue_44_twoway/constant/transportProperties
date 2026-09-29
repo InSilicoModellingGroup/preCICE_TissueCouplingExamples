@@ -1,0 +1,9 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+species (H2O2 NO2);
+
+// Match case 4.3 so the returned cellular sink is the controlled difference.
+D_H2O2  [0 2 -1 0 0 0 0] 1.75e-9;
+D_NO2   [0 2 -1 0 0 0 0] 1.75e-9;
+k_H2O2  [0 0 -1 0 0 0 0] 0.005;
+k_NO2   [0 0 -1 0 0 0 0] 0.005;
+twoWayCoupling  true;

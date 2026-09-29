@@ -1,0 +1,80 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Paraview
+*.vtp
+*.vtk
+*.vtu
+*.vtm
+*.vts
+*.vtmb
+*.pvsm
+*.pvtu
+*.ogv
+
+# Logs
+*.log
+run.log
+
+# OpenFOAM generated output
+processor*/
+postProcessing/
+
+# OpenFOAM generated build folders
+**/Make/linux64GccDPInt32Opt/
+**/lnInclude/
+
+# CMake/build artifacts
+**/build/
+**/CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Simulation outputs / profiling
+**/output/
+**/venturi_output/
+**/precice-profiling/
+modular_Coupling/participants/tissue_4*/precice-config-*.xml
+# /extras/
+
+# Optional generated state markers
+.steady_state_time
+.original_end_time
+**/dynamicCode/platforms/
+
+# modular_Coupling participant run outputs
+modular_Coupling/participants/**/*.foam
+modular_Coupling/participants/**/constant/polyMesh/
+modular_Coupling/participants/**/[1-9]*/
+modular_Coupling/participants/**/0.[0-9]*/

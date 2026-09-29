@@ -1,0 +1,19 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+species (H2O2 NO2);
+
+// In-vitro aqueous/culture-medium diffusion
+// Active (central): 1.75e-9 m2/s for both RONS.
+// D_H2O2  [0 2 -1 0 0 0 0] 1.75e-9;
+// D_NO2   [0 2 -1 0 0 0 0] 1.75e-9;
+
+// Low alternative (uncomment this pair and comment the active pair):
+// D_H2O2  [0 2 -1 0 0 0 0] 1.50e-11;
+// D_NO2   [0 2 -1 0 0 0 0] 1.50e-11;
+
+// High alternative:
+D_H2O2  [0 2 -1 0 0 0 0] 0.15e-8;
+D_NO2   [0 2 -1 0 0 0 0] 0.15e-8;
+
+k_H2O2  [0 0 -1 0 0 0 0] 0;
+k_NO2   [0 0 -1 0 0 0 0] 0;
+twoWayCoupling  false;

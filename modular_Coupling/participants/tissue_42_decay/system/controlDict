@@ -1,0 +1,90 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2406                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+FoamFile
+{
+    version         2;
+    format          ascii;
+    class           dictionary;
+    object          controlDict;
+}
+
+application     myDiffusionFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         180;
+
+deltaT          0.1;
+
+adjustTimeStep  no;
+
+writeControl    runTime;
+
+writeInterval   5;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+    preCICE_Adapter
+    {
+        type            preciceAdapterFunctionObject;
+        libs            ( "libpreciceAdapterFunctionObject.so" );
+        enabled         true;
+    }
+    runTimeControl
+    {
+        type            runTimeControl;
+        libs            ( "libutilityFunctionObjects.so" );
+        enabled         false;
+        conditions
+        {
+            steadyState
+            {
+                type            equationInitialResidual;
+                fields          ( H2O2 NO2 );
+                value           1e-05;
+                mode            minimum;
+            }
+        }
+        satisfiedAction end;
+    }
+    tissueDepthProbes
+    {
+        type            probes;
+        enabled         true;
+        libs            ( "libsampling.so" );
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    timeStep;
+        writeInterval   10;
+        probeLocations  ( ( 0 0 0.00095 ) ( 0 0 0.00075 ) ( 0 0 0.0005 ) ( 0 0 0.00025 ) ( 0 0 5e-05 ) );
+        fields          ( H2O2 NO2 );
+        interpolationScheme cell;
+    }
+}
+
+purgeWrite      0;
+
+
+// ************************************************************************* //
