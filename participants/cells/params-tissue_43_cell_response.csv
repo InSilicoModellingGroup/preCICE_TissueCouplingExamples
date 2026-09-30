@@ -1,0 +1,148 @@
+parameter_name,type,parameter_value
+# ============================================================
+# 4.3 One-way RONS diffusion + decay + intracellular response
+# H2O2 and NO2- use the same ABM4bio uptake/clearance ODE.
+# Agent uptake is not returned to the FVM field in this case.
+# ============================================================
+precice.participant_name,string,cells
+precice.config_file,string,../tissue_43_cell_response/precice-config-tissue_43_cell_response.xml
+precice.enable_profiling,bool,true
+precice.profiling_variable,string,PRECICE_PROFILING
+precice.profiling_value,string,1
+precice.profiling_mode_variable,string,PRECICE_PROFILING_MODE
+precice.profiling_mode_value,string,all
+precice.velocity_data_name,string,none
+precice.pressure_data_name,string,none
+precice.pressure_gradient_data_name,string,none
+precice.temperature_data_name,string,none
+precice.fluid_acceleration_data_name,string,none
+precice.fluid_vorticity_data_name,string,none
+precice.fluid_density_data_name,string,none
+precice.fluid_dynamic_viscosity_data_name,string,none
+precice.oxygen_data_name,string,none
+precice.h2o2_data_name,string,H2O2
+precice.no2_data_name,string,NO2
+precice.oxygen_sink_data_name,string,none
+precice.h2o2_sink_data_name,string,none
+precice.no2_sink_data_name,string,none
+precice.position_data_name,string,none
+precice.wall_velocity_data_name,string,none
+precice.wall_geometry_data_name,string,WallGeometry
+precice.wall_normals_data_name,string,WallNormals
+precice.wall_areas_data_name,string,WallAreas
+mesh.particle_mesh,string,ABMmesh
+mesh.primary_volume_mesh,string,FVMmesh
+mesh.default_volume_meshes,string_list,FVMmesh
+mesh.default_wall_meshes,string_list,WallSurfaceMesh
+mesh.foam_case_directory,string,../tissue_43_cell_response
+mesh.block_mesh_dict,string,system/blockMeshDict
+# Compact HCP spheroid: 5000 cells, diameter 20 um
+agent.default_diameter,double,2.0e-5
+agent.custom_positions_csv,string,agents_positions-tissue.csv
+agent.custom_positions_required,bool,true
+agent.particle_density,double,1000.0
+agent.inlet_generation,bool,false
+agent.outlet_removal,bool,false
+coupling.two_way,bool,false
+coupling.enable_velocity,bool,false
+coupling.enable_pressure,bool,false
+coupling.enable_temperature,bool,false
+coupling.enable_oxygen,bool,false
+coupling.enable_h2o2,bool,true
+coupling.enable_no2,bool,true
+coupling.store_oxygen_as_h2o2,bool,false
+coupling.store_temperature_as_no2,bool,false
+coupling.enable_oxygen_sink,bool,false
+coupling.enable_h2o2_sink,bool,false
+coupling.enable_no2_sink,bool,false
+coupling.enable_drag_physics,bool,false
+coupling.enable_pressure_gradient,bool,false
+coupling.enable_gravity,bool,false
+coupling.enable_virtual_mass,bool,false
+coupling.enable_lift_forces,bool,false
+coupling.enable_turbulence_dispersion,bool,false
+coupling.fetch_fluid_properties,bool,false
+coupling.field_read_relative_time,string,window_end
+fluid.density,double,1000.0
+fluid.dynamic_viscosity,double,0.001
+# Shared first-order uptake proxy: q_s = alpha_ext C_s.
+coupling.h2o2_uptake_rate,double,0.02
+coupling.h2o2_uptake_max,double,0.02
+coupling.no2_uptake_rate,double,0.02
+coupling.no2_uptake_max,double,0.02
+biology.enable_growth_division,bool,false
+biology.enable_rons_response,bool,true
+biology.enable_intracellular_rons_ode,bool,true
+biology.remove_dead_agents,bool,true
+biology.oxygen_growth_threshold,double,50.0
+biology.oxygen_quiescent_threshold,double,25.0
+biology.oxygen_min,double,0.0
+biology.oxygen_max,double,1000.0
+biology.h2o2_min,double,0.0
+biology.h2o2_max,double,0.1
+biology.no2_min,double,0.0
+biology.no2_max,double,0.1
+# Provisional, uncalibrated ABM4bio ODE coefficients.
+# dR_s/dt = alpha_ext*C_s - beta_R*R_s
+# dD/dt   = alpha_D*(R_H2O2 + R_NO2) - beta_D*D
+# alpha_D=2.5 is scaled for a 180 s in-vitro exposure. At the intracellular
+# loads reached by that time it carries exposed agents across D=1, while a
+# substantially lower load stays below the threshold.
+# Removal is not immediate: once D>=1, each step removes the agent with
+# probability 1-exp(-death_removal_rate*dt), rate 0.02 1/s.
+biology.rons_uptake_rate,double,0.02
+biology.rons_clearance_rate,double,0.02
+biology.damage_accumulation_rate,double,2.5
+biology.damage_repair_rate,double,0.02
+biology.rons_stress_threshold,double,0.35
+biology.rons_death_threshold,double,1.0
+biology.death_removal_rate,double,0.02
+biology.oxygen_sensitivity_power,double,1.2
+biology.growth_rate,double,0.0
+biology.growth_randomness,double,0.0
+biology.division_diameter,double,2.2e-5
+biology.division_probability_base,double,0.0
+biology.division_probability_oxygen_power,double,1.0
+biology.division_probability_randomness,double,0.0
+biology.division_volume_ratio,double,1.0
+biology.keep_mother_position_on_division,bool,false
+biology.daughter_offset_fraction,double,0.55
+biology.post_division_repulsion_distance_fraction,double,1.5
+biology.post_division_repulsion_steps,int,8
+biology.max_cell_count,int,50000
+biology.oxygen_necrotic_threshold,double,0.0
+visualization.export_interval,int,10
+visualization.export_interval_seconds,double,5.0
+visualization.export_visualization,bool,true
+visualization.generate_pvsm,bool,true
+visualization.output_directory,string,output/tissue_43_cell_response
+visualization.simulation_name,string,tissue_43_cell_response_cells
+visualization.agents,string_list,MyCell
+visualization.agent_members.MyCell,string_list,h2o2_;no2_;h2o2_uptake_;no2_uptake_;intracellular_h2o2_;intracellular_no2_;oxidative_stress_;damage_;phenotype_;diameter_;cell_color_;track_id_
+visualization.temperature_scale_min,double,0.0
+visualization.temperature_scale_max,double,0.1
+simulation.biodynamo_timestep,double,0.1
+simulation.integration_mode,string,default
+simulation.force_2d,bool,false
+simulation.end_time,double,180.0
+simulation.enable_particle_motion,bool,false
+simulation.wall_confinement,string,enforce
+interaction.wall_velocity_response,string,slip
+simulation.enable_particle_particle,bool,false
+simulation.enable_cell_spread,bool,false
+biology.cell_spread_overlap_strength,double,0.5
+biology.cell_spread_adhesion_strength,double,0.05
+biology.cell_spread_adhesion_range_factor,double,1.25
+biology.cell_spread_max_displacement_fraction,double,0.25
+biology.cell_spread_search_radius_factor,double,2.5
+biology.cell_spread_run_interval,int,5
+simulation.clamp_to_domain,bool,true
+simulation.enable_temperature_size_relaxation,bool,false
+simulation.enable_temperature_size_scaling,bool,false
+logging.print_parameters,bool,true
+logging.print_interval,int,100
+visualization.color_mode,string,rons_fate
+logging.verbose,bool,false
+environment.volume_meshes_variable,string,BDM_VOLUME_MESHES
+environment.primary_volume_variable,string,BDM_PRIMARY_VOLUME_MESH
+environment.wall_meshes_variable,string,BDM_WALL_MESHES

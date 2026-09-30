@@ -65,7 +65,7 @@ compile_commands.json
 **/output/
 **/venturi_output/
 **/precice-profiling/
-modular_Coupling/participants/tissue_4*/precice-config-*.xml
+participants/tissue_4*/precice-config-*.xml
 # /extras/
 
 # Optional generated state markers
@@ -73,8 +73,8 @@ modular_Coupling/participants/tissue_4*/precice-config-*.xml
 .original_end_time
 **/dynamicCode/platforms/
 
-# modular_Coupling participant run outputs
-modular_Coupling/participants/**/*.foam
-modular_Coupling/participants/**/constant/polyMesh/
-modular_Coupling/participants/**/[1-9]*/
-modular_Coupling/participants/**/0.[0-9]*/
+# participant run outputs
+participants/**/*.foam
+participants/**/constant/polyMesh/
+participants/**/[1-9]*/
+participants/**/0.[0-9]*/

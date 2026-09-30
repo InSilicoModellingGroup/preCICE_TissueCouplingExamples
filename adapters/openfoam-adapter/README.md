@@ -12,8 +12,8 @@ The reduced FA module:
 - writes the static boundary face and triangle data needed by the cells
   participant.
 
-Flow-field exchange, particle momentum/mass feedback, CHT, FSI, and fluid-fluid
-modules are intentionally absent. See the repository-level `SCOPE.md`.
+The adapter built here exchanges H2O2, NO2, H2O2Sink, NO2Sink, and the
+boundary geometry used by the cells participant.
 
 Build after loading the OpenFOAM v2406 environment:
 

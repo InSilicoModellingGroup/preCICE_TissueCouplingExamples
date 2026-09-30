@@ -17,7 +17,7 @@ for directory in \
 done
 
 if rg -n 'UTrans|UCoeff|rhokTrans|ParticleMomentumSource' \
-    adapters modular_Coupling/cells/src; then
+    adapters participants/cells/src; then
   fail "excluded particle feedback identifier found"
 fi
 
@@ -28,12 +28,12 @@ if rg -n '/home/[^/]+/' . \
 fi
 
 expected_cases='tissue_41_diffusion tissue_42_decay tissue_43_cell_response tissue_44_twoway'
-actual_cases=$(find modular_Coupling/participants -mindepth 1 -maxdepth 1 \
-  -type d -printf '%f\n' | sort | tr '\n' ' ' | sed 's/ $//')
+actual_cases=$(find participants -mindepth 1 -maxdepth 1 \
+  -type d ! -name cells -printf '%f\n' | sort | tr '\n' ' ' | sed 's/ $//')
 [[ "$actual_cases" == "$expected_cases" ]] || \
   fail "unexpected participant set: $actual_cases"
 
-if find modular_Coupling/participants/tissue_4* -mindepth 1 -maxdepth 1 \
+if find participants/tissue_4* -mindepth 1 -maxdepth 1 \
     -type d -regextype posix-extended -regex '.*/[1-9][0-9.]*' | grep -q .; then
   fail "generated OpenFOAM time directory found"
 fi
