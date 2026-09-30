@@ -249,9 +249,3 @@ participants/tissue_4*/        the four OpenFOAM cases
 inputs/cylinder/               shared cylinder mesh
 cpu-layout.sh                  core pinning used by the run scripts
 ```
-
-## Licenses
-
-`adapters/openfoam-adapter/` is derived from the preCICE OpenFOAM adapter and
-keeps that project's license in `adapters/openfoam-adapter/LICENSE`. BioDynaMo
-is Apache-2.0. preCICE and OpenFOAM keep their own licenses.
